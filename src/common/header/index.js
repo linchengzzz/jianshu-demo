@@ -1,41 +1,37 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import {
-    HeaderWrapper,
-    Logo,
-    Nav,
-    NavItem,
-    NavSearch,
-    Addition,
-    Button,
-    SearchWrapper,
-    SearchInfo,
-    SearchInfoTitle,
-    SearchInfoSwitch,
-    SearchInfoList,
-    SearchInfoItem
-} from './style';
+import { HeaderWrapper, Logo, Nav, NavItem, NavSearch, Addition, Button, SearchWrapper, SearchInfo, SearchInfoTitle, SearchInfoSwitch, SearchInfoList, SearchInfoItem } from './style';
 import { Action } from './store'
 import { CSSTransition } from 'react-transition-group';
-
 
 class Header extends React.Component {
 
     getListArea() {
-        const { focused, list} = this.props;
-        if (focused) {
+        const { focused, mouseIn, list, page, totalPage, handleMouseEnter, handleMouseLeave, handleChangePage } = this.props;
+        const newList = list.toJS();
+        const length = newList.length;
+        const pageList = [];
+        if (length) {
+            for (let i = page * 10; i < (page + 1 ) * 10; i++) {
+                i < length && pageList.push(
+                    <SearchInfoItem key={newList[i]}>{newList[i]}</SearchInfoItem>
+                )
+            }
+        }
+        if (focused || mouseIn) {
             return (
-                <SearchInfo>
+                <SearchInfo
+                    onMouseEnter={() => handleMouseEnter()}
+                    onMouseLeave={() => handleMouseLeave()}>
                     <SearchInfoTitle>
                         热门搜索
-                        <SearchInfoSwitch>换一批</SearchInfoSwitch>
+                        <SearchInfoSwitch onClick={() => handleChangePage(page, totalPage, this.spinIcon)}>
+                            <i ref={icon => (this.spinIcon = icon)} className={'iconfont spin'}>&#xe851;</i>
+                            换一批
+                        </SearchInfoSwitch>
                     </SearchInfoTitle>
                     <SearchInfoList>
-                        {
-                            list.map(item => (
-                                <SearchInfoItem key={item}>{item}</SearchInfoItem>
-                            ))
-                        }
+                        {pageList}
                     </SearchInfoList>
                 </SearchInfo>
             )
@@ -45,7 +41,7 @@ class Header extends React.Component {
     }
 
     render() {
-        const { focused, handleInputFocus, handleInputBlur } = this.props;
+        const { focused, handleInputFocus, handleInputBlur, list } = this.props;
         return (
             <HeaderWrapper>
                 <Logo />
@@ -63,10 +59,10 @@ class Header extends React.Component {
                             classNames={'slide'}>
                             <NavSearch
                                 className={focused ? 'focused' : ''}
-                                onFocus={() => handleInputFocus()}
+                                onFocus={() => handleInputFocus(list)}
                                 onBlur={() => handleInputBlur()}/>
                         </CSSTransition>
-                        <i className={`iconfont ${focused ? 'focused' : ''}`}>&#xe623;</i>
+                        <i className={`iconfont ${focused ? 'focused zoom' : 'zoom'}`}>&#xe623;</i>
                         {this.getListArea(focused)}
                     </SearchWrapper>
                 </Nav>
@@ -84,15 +80,29 @@ class Header extends React.Component {
 
 const mapStateToProps = (state) => ({
     focused: state.getIn(['header', 'focused']),
-    list: state.getIn(['header', 'list'])
+    mouseIn: state.getIn(['header', 'mouseIn']),
+    list: state.getIn(['header', 'list']),
+    page: state.getIn(['header', 'page']),
+    totalPage: state.getIn(['header', 'totalPage'])
 });
 const mapDispatchToProps = (dispatch) => ({
-    handleInputFocus() {
-        dispatch(Action.getList());
+    handleInputFocus(list) {
+        !list.size && dispatch(Action.getList());
         dispatch(Action.searchFocus());
     },
     handleInputBlur() {
         dispatch(Action.searchBlur());
+    },
+    handleMouseEnter() {
+        dispatch(Action.mouseEnter());
+    },
+    handleMouseLeave() {
+        dispatch(Action.mouseLeave())
+    },
+    handleChangePage(page, totalPage, spin) {
+        const originAngle = ~~spin.style.transform.replace(/[^0-9]/ig, '');
+        spin.style.transform = `rotate(${originAngle + 360}deg)`;
+        dispatch(Action.changePage( page < totalPage ? page + 1 : 0));
     }
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Header);

@@ -4,7 +4,8 @@ import axios from 'axios';
 
 const changeList = (data) => ({
     type: Types.CHANGE_LIST,
-    data: fromJS(data)
+    data: fromJS(data),
+    totalPage: Math.floor(data.length / 10)
 })
 
 export const searchFocus = () => ({
@@ -21,3 +22,16 @@ export const getList = () => (dispatch) => {
         dispatch(changeList(data.data))
     }).catch(err => console.error(err));
 }
+
+export const mouseEnter = () => ({
+    type: Types.MOUSE_ENTER
+})
+
+export const mouseLeave = () => ({
+    type: Types.MOUSE_LEAVE
+})
+
+export const changePage = (page) => ({
+    type: Types.CHANGE_PAGE,
+    page
+})
