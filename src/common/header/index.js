@@ -1,13 +1,37 @@
 import React from 'react';
-import { connect } from 'react-redux'
-import { HeaderWrapper, Logo, Nav, NavItem, NavSearch, Addition, Button, SearchWrapper, SearchInfo, SearchInfoTitle, SearchInfoSwitch, SearchInfoList, SearchInfoItem } from './style';
-import { Action } from './store'
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
+import { Action } from './store';
+import {
+    HeaderWrapper,
+    Logo,
+    Nav,
+    NavItem,
+    NavSearch,
+    Addition,
+    Button,
+    SearchWrapper,
+    SearchInfo,
+    SearchInfoTitle,
+    SearchInfoSwitch,
+    SearchInfoList,
+    SearchInfoItem
+} from './style';
 
-class Header extends React.Component {
+class Header extends React.PureComponent {
 
     getListArea() {
-        const { focused, mouseIn, list, page, totalPage, handleMouseEnter, handleMouseLeave, handleChangePage } = this.props;
+        const {
+            focused,
+            mouseIn,
+            list,
+            page,
+            totalPage,
+            handleMouseEnter,
+            handleMouseLeave,
+            handleChangePage
+        } = this.props;
         const newList = list.toJS();
         const length = newList.length;
         const pageList = [];
@@ -44,7 +68,9 @@ class Header extends React.Component {
         const { focused, handleInputFocus, handleInputBlur, list } = this.props;
         return (
             <HeaderWrapper>
-                <Logo />
+                <Link to={'/'}>
+                    <Logo />
+                </Link>
                 <Nav>
                     <NavItem className={'left active'}>首页</NavItem>
                     <NavItem className={'left'}>下载App</NavItem>
@@ -105,4 +131,5 @@ const mapDispatchToProps = (dispatch) => ({
         dispatch(Action.changePage( page < totalPage ? page + 1 : 0));
     }
 });
+
 export default connect(mapStateToProps, mapDispatchToProps)(Header);
