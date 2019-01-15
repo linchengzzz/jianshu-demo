@@ -29,6 +29,7 @@ export const NavItem = styled.div`
     line-height: 56px;
     padding: 0 15px;
     font-size: 17px;
+    cursor: pointer;
     color: #333;
     &.left {
         float: left;

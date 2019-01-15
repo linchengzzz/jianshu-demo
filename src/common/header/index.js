@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { Action } from './store';
+import { Action as LoginAction } from '../../page/Login/store';
 import {
     HeaderWrapper,
     Logo,
@@ -65,7 +66,7 @@ class Header extends React.PureComponent {
     }
 
     render() {
-        const { focused, handleInputFocus, handleInputBlur, list } = this.props;
+        const { focused, handleInputFocus, handleInputBlur, list, isLogin, logout } = this.props;
         return (
             <HeaderWrapper>
                 <Link to={'/'}>
@@ -74,7 +75,13 @@ class Header extends React.PureComponent {
                 <Nav>
                     <NavItem className={'left active'}>首页</NavItem>
                     <NavItem className={'left'}>下载App</NavItem>
-                    <NavItem className={'right'}>登录</NavItem>
+                    { isLogin ? (
+                        <NavItem className={'right'} onClick={() => logout()}>退出</NavItem>
+                    ) : (
+                        <Link to={'/login'}>
+                            <NavItem className={'right'}>登录</NavItem>
+                        </Link>
+                    )}
                     <NavItem className={'right'}>
                         <i className={'iconfont'}>&#xe636;</i>
                     </NavItem>
@@ -93,10 +100,12 @@ class Header extends React.PureComponent {
                     </SearchWrapper>
                 </Nav>
                 <Addition>
-                    <Button className={'writing'}>
-                        <i className={'iconfont'}>&#xe61b;</i>
-                        写文章
-                    </Button>
+                    <Link to={'/write'}>
+                        <Button className={'writing'}>
+                            <i className={'iconfont'}>&#xe61b;</i>
+                            写文章
+                        </Button>
+                    </Link>
                     <Button className={'reg'}>注册</Button>
                 </Addition>
             </HeaderWrapper>
@@ -109,7 +118,8 @@ const mapStateToProps = (state) => ({
     mouseIn: state.getIn(['header', 'mouseIn']),
     list: state.getIn(['header', 'list']),
     page: state.getIn(['header', 'page']),
-    totalPage: state.getIn(['header', 'totalPage'])
+    totalPage: state.getIn(['header', 'totalPage']),
+    isLogin: state.getIn(['login', 'isLogin']),
 });
 const mapDispatchToProps = (dispatch) => ({
     handleInputFocus(list) {
@@ -123,12 +133,15 @@ const mapDispatchToProps = (dispatch) => ({
         dispatch(Action.mouseEnter());
     },
     handleMouseLeave() {
-        dispatch(Action.mouseLeave())
+        dispatch(Action.mouseLeave());
     },
     handleChangePage(page, totalPage, spin) {
         const originAngle = ~~spin.style.transform.replace(/[^0-9]/ig, '');
         spin.style.transform = `rotate(${originAngle + 360}deg)`;
         dispatch(Action.changePage( page < totalPage ? page + 1 : 0));
+    },
+    logout() {
+        dispatch(LoginAction.logout())
     }
 });
 
