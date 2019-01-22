@@ -29,4 +29,5 @@ const mapDispatch = dispatch => ({
         dispatch(Action.getDetailData(id))
     }
 })
+
 export default connect(mapState, mapDispatch)(withRouter(Detail));
